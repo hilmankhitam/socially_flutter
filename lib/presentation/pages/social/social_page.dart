@@ -52,9 +52,6 @@ class _SocialPageState extends State<SocialPage> {
   List<String> listStories = [
     'Hai',
     'Nama',
-    'Saya',
-    'Hilman',
-    'Khitam',
   ];
 
   Widget socialFriends() {
@@ -297,7 +294,7 @@ class _SocialPageState extends State<SocialPage> {
               const SizedBox(
                 height: 28,
               ),
-              SignInSignUpButton(
+              MainButton(
                 title: 'Stop',
                 onPressed: () {},
               ),
@@ -361,7 +358,7 @@ class _SocialPageState extends State<SocialPage> {
                         title: 'Description',
                         controller: descriptionController,
                       ),
-                      SignInSignUpButton(
+                      MainButton(
                         title: 'Create',
                         onPressed: () {},
                       ),

@@ -1,28 +1,57 @@
 part of 'extensions.dart';
 
 extension DateTimeExtension on DateTime {
-  String timeAgo({bool numericDates = true}) {
-    final date2 = DateTime.now();
-    final difference = date2.difference(this);
+  String readTimeStamp(int timeStamp) {
+    var now = DateTime.now();
+    var date = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+    var diff = now.difference(date);
+    var time = '';
 
-    if ((difference.inDays / 7).floor() >= 1) {
-      return (numericDates) ? '1 week ago' : 'Last week';
-    } else if (difference.inDays >= 2) {
-      return '${difference.inDays} days ago';
-    } else if (difference.inDays >= 1) {
-      return (numericDates) ? '1 day ago' : 'Yesterday';
-    } else if (difference.inHours >= 2) {
-      return '${difference.inHours} hours ago';
-    } else if (difference.inHours >= 1) {
-      return (numericDates) ? '1 hour ago' : 'An hour ago';
-    } else if (difference.inMinutes >= 2) {
-      return '${difference.inMinutes} minutes ago';
-    } else if (difference.inMinutes >= 1) {
-      return (numericDates) ? '1 minute ago' : 'A minute ago';
-    } else if (difference.inSeconds >= 3) {
-      return '${difference.inSeconds} seconds ago';
+    if (diff.inSeconds > 0 && diff.inSeconds < 60) {
+      if (diff.inSeconds == 1) {
+        time = '${diff.inSeconds} second ago';
+      } else {
+        time = '${diff.inSeconds} seconds ago';
+      }
+    } else if (diff.inMinutes > 0 && diff.inMinutes < 60) {
+      if (diff.inSeconds == 1) {
+        time = '${diff.inMinutes} minute ago';
+      } else {
+        time = '${diff.inMinutes} minutes ago';
+      }
+    } else if (diff.inHours > 0 && diff.inHours < 24) {
+      if (diff.inHours == 1) {
+        time = '${diff.inHours} hour ago';
+      } else {
+        time = '${diff.inHours} hours ago';
+      }
+    } else if (diff.inDays > 0 && diff.inDays < 7) {
+      if (diff.inDays == 1) {
+        time = '${diff.inDays} Day ago';
+      } else {
+        time = '${diff.inDays} Days ago';
+      }
     } else {
-      return 'Just now';
+      if (diff.inDays == 7) {
+        time = '${(diff.inDays / 7).floor()} Week ago';
+      } else {
+        time = '${(diff.inDays / 7).floor()} Weeks ago';
+      }
     }
+    return time;
+  }
+
+  String readTimeStampChat(int timeStamp) {
+    var now = DateTime.now();
+    var date = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+    var diff = now.difference(date);
+    var time = '';
+
+    if (diff.inDays < 1) {
+      time = DateFormat.Hm().format(date);
+    } else {
+      time = DateFormat('dd/MM/yy').format(date);
+    }
+    return time;
   }
 }

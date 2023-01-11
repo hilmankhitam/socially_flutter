@@ -92,7 +92,7 @@ class _SignUpUsernamePageState extends State<SignUpUsernamePage> {
                   controller: confirmPasswordController,
                 ),
                 const Spacer(),
-                SignInSignUpButton(
+                MainButton(
                   title: 'Done',
                   onPressed: () {
                     if (!(usernameController.text != '' &&

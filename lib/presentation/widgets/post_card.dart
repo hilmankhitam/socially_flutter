@@ -1,14 +1,36 @@
 part of 'widgets.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
+  final String myPersonalId;
+  final UserEntity user;
+  final PostEntity post;
+  final List<UserEntity> likes;
+  final List<CommentEntity> comments;
   final Function onTap;
   final bool isCommentPage;
-  const PostCard({required this.onTap, this.isCommentPage = false, super.key});
+  const PostCard(
+      {required this.myPersonalId,
+      required this.user,
+      required this.post,
+      required this.likes,
+      required this.comments,
+      required this.onTap,
+      this.isCommentPage = false,
+      super.key});
 
   @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  @override
   Widget build(BuildContext context) {
+    bool isLike = (widget.post.likes.contains(widget.myPersonalId));
+
+    var time = widget.post.datePublished.millisecondsSinceEpoch;
+
     return GestureDetector(
-      onTap: () => onTap(),
+      onTap: () => widget.onTap(),
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: 19,
@@ -26,11 +48,11 @@ class PostCard extends StatelessWidget {
                 Container(
                   width: 46,
                   height: 46,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
                       image: NetworkImage(
-                        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+                        widget.user.profilePicture!,
                       ),
                       fit: BoxFit.cover,
                     ),
@@ -43,14 +65,14 @@ class PostCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'El kamcy speaks',
+                      widget.user.name!,
                       style: blackTextFont.copyWith(
                         fontSize: 15,
                         fontWeight: semiBold,
                       ),
                     ),
                     Text(
-                      '1hr ago',
+                      widget.post.datePublished.readTimeStamp(time),
                       style: blackTextFont.copyWith(
                         fontSize: 12,
                         fontWeight: medium,
@@ -64,7 +86,17 @@ class PostCard extends StatelessWidget {
               height: 9,
             ),
             Text(
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pharetra ',
+              widget.post.description,
+              style: blackTextFont.copyWith(
+                fontSize: 10,
+                fontWeight: reguler,
+              ),
+            ),
+            const SizedBox(
+              height: 9,
+            ),
+            Text(
+              widget.post.hastag,
               style: blackTextFont.copyWith(
                 fontSize: 10,
                 fontWeight: reguler,
@@ -76,9 +108,8 @@ class PostCard extends StatelessWidget {
             Container(
               height: 186,
               decoration: BoxDecoration(
-                image: const DecorationImage(
-                  image: NetworkImage(
-                      'https://images.unsplash.com/photo-1499346030926-9a72daac6c63?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80'),
+                image: DecorationImage(
+                  image: NetworkImage(widget.post.postImage),
                   fit: BoxFit.cover,
                 ),
                 border: Border.all(width: 0.5),
@@ -96,41 +127,35 @@ class PostCard extends StatelessWidget {
                     SizedBox(
                       width: 46,
                       child: Stack(
-                        children: const [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                    'https://images.unsplash.com/photo-1551929175-f82f676827b8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=686&q=80'),
+                        children: widget.likes
+                            .asMap()
+                            .map(
+                              (index, user) => MapEntry(
+                                index,
+                                Align(
+                                  alignment: (index == 0)
+                                      ? Alignment.centerLeft
+                                      : (index == 1)
+                                          ? Alignment.center
+                                          : Alignment.centerRight,
+                                  child: SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: user.profilePicture == ''
+                                        ? const CircleAvatar(
+                                            backgroundImage: AssetImage(
+                                                'assets/user_pic.png'),
+                                          )
+                                        : CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                                user.profilePicture!),
+                                          ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.center,
-                            child: SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                    'https://images.unsplash.com/photo-1536588086516-cf8b058a7aa0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80'),
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                    'https://images.unsplash.com/photo-1541499768294-44cad3c95755?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1473&q=80'),
-                              ),
-                            ),
-                          ),
-                        ],
+                            )
+                            .values
+                            .toList(),
                       ),
                     ),
                   ],
@@ -139,15 +164,38 @@ class PostCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Image.asset(
-                          'assets/love_icon.png',
-                          width: 13,
-                        ),
+                        isLike
+                            ? GestureDetector(
+                                onTap: () {
+                                  context.read<LikeUnlikeBloc>().add(
+                                      UnlikeThisPostEvent(widget.post.idPost!,
+                                          widget.myPersonalId));
+                                  widget.post.likes.remove(widget.myPersonalId);
+                                  setState(() {});
+                                },
+                                child: Image.asset(
+                                  'assets/love_icon.png',
+                                  width: 13,
+                                ),
+                              )
+                            : GestureDetector(
+                                onTap: () {
+                                  context.read<LikeUnlikeBloc>().add(
+                                      LikeThisPostEvent(widget.post.idPost!,
+                                          widget.myPersonalId));
+                                  widget.post.likes.add(widget.myPersonalId);
+                                  setState(() {});
+                                },
+                                child: Image.asset(
+                                  'assets/love_white_icon.png',
+                                  width: 13,
+                                ),
+                              ),
                         const SizedBox(
                           width: 5,
                         ),
                         Text(
-                          '427',
+                          widget.post.likes.length.toString(),
                           style: blackTextFont.copyWith(
                             fontSize: 10,
                             fontWeight: bold,
@@ -168,7 +216,7 @@ class PostCard extends StatelessWidget {
                           width: 5,
                         ),
                         Text(
-                          '78',
+                          widget.comments.length.toString(),
                           style: blackTextFont.copyWith(
                             fontSize: 10,
                             fontWeight: bold,
@@ -183,20 +231,22 @@ class PostCard extends StatelessWidget {
             const SizedBox(
               height: 3,
             ),
-            Text(
-              'Liked by Annabel and 100+ others',
-              style: blackTextFont.copyWith(
-                fontSize: 10,
-                fontWeight: bold,
-              ),
-            ),
+            widget.likes.isNotEmpty
+                ? Text(
+                    'Liked by ${widget.likes.first.name} and ${widget.post.likes.length - 1} others',
+                    style: blackTextFont.copyWith(
+                      fontSize: 10,
+                      fontWeight: bold,
+                    ),
+                  )
+                : const SizedBox(),
             const SizedBox(
               height: 3,
             ),
-            isCommentPage
+            widget.isCommentPage
                 ? const SizedBox()
                 : Text(
-                    'View all 78 comments',
+                    'View all ${widget.comments.length} comments',
                     style: blackTextFont.copyWith(
                       fontSize: 10,
                       fontWeight: bold,

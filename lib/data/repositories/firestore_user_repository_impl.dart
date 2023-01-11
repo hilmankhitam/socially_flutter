@@ -24,4 +24,68 @@ class FirestoreUserRepositoryImpl implements FirestoreUserRepository {
       return const Left(ConnectionFailure('Failure to connect to the network'));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> updateUser(UserEntity updateUser) async {
+    try {
+      final result = await firestoreUser.updateUser(updateUser.toModel());
+      return Right(result);
+    } on ServerException {
+      return const Left(ServerFailure(''));
+    } on SocketException {
+      return const Left(ConnectionFailure('Failure to connect to the network'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> getUser(String id) async {
+    try {
+      final result = await firestoreUser.getUser(id);
+      return Right(result.toEntity());
+    } on ServerException {
+      return const Left(ServerFailure(''));
+    } on SocketException {
+      return const Left(ConnectionFailure('Failure to connect to the network'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<UserEntity>>> searchUser(String query) async {
+    try {
+      final result = await firestoreUser.searchUser(query);
+      return Right(result.map((model) => model.toEntity()).toList());
+    } on ServerException {
+      return const Left(ServerFailure(''));
+    } on SocketException {
+      return const Left(ConnectionFailure('Failure to connect to the network'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> followThisUser(
+      String myPersonalId, String followingUserId) async {
+    try {
+      final result =
+          await firestoreUser.followThisUser(myPersonalId, followingUserId);
+      return Right(result);
+    } on ServerException {
+      return const Left(ServerFailure(''));
+    } on SocketException {
+      return const Left(ConnectionFailure('Failure to connect to the network'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> unfollowThisUser(
+      String myPersonalId, String followingUserId) async {
+    try {
+      final result =
+          await firestoreUser.unfollowThisUser(myPersonalId, followingUserId);
+      return Right(result);
+    } on ServerException {
+      return const Left(ServerFailure(''));
+    } on SocketException {
+      return const Left(ConnectionFailure('Failure to connect to the network'));
+    }
+  }
 }

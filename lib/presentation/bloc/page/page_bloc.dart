@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:socially/domain/entities/registration_data.dart';
+import 'package:socially/domain/entities/user_entity.dart';
 
 part 'page_event.dart';
 part 'page_state.dart';
@@ -17,6 +18,6 @@ class PageBloc extends Bloc<PageEvent, PageState> {
         emit(OnSignUpConfirmationPage(event.registrationData)));
     on<GoToMainPage>(
         (event, emit) => emit(OnMainPage(event.bottomNavBarIndex)));
-    on<GoToDetailChatPage>((event, emit) => emit(OnDetailChatPage()));
+    on<GoToDetailChatPage>((event, emit) => emit(OnDetailChatPage(event.user)));
   }
 }

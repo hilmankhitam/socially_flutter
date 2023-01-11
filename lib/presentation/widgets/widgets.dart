@@ -1,12 +1,26 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:socially/common/extensions/extensions.dart';
+import 'package:socially/common/shared_methods.dart';
+import 'package:socially/common/shared_value.dart';
 import 'package:socially/common/styles.dart';
+import 'package:socially/domain/entities/comment_entity.dart';
+import 'package:socially/domain/entities/message_entity.dart';
 import 'package:socially/domain/entities/notification.dart';
+import 'package:socially/domain/entities/post_entity.dart';
+import 'package:socially/domain/entities/user_entity.dart';
+import 'package:socially/domain/usecase/firestore_chat/get_messages_by_id_use_case.dart';
+import 'package:socially/presentation/bloc/firebase_auth/firebase_auth_bloc.dart';
+import 'package:socially/presentation/bloc/page/post_page/post_page_bloc.dart';
+import 'package:socially/presentation/bloc/page/profile_page/profile_page_bloc.dart';
+import 'package:socially/presentation/bloc/post/like_unlike/bloc/like_unlike_bloc.dart';
+import 'package:socially/presentation/bloc/search/search_bloc.dart';
+import 'package:socially/presentation/bloc/user/user_bloc.dart';
+import 'package:socially/injection.dart' as di;
 
-part 'sign_in_sign_up_button.dart';
+part 'main_button.dart';
 part 'custom_textfield.dart';
 part 'sign_in_sign_up_header.dart';
 part 'sign_in_sign_up_footer.dart';
@@ -20,3 +34,4 @@ part 'social_card.dart';
 part 'chat_tile.dart';
 part 'chat_bubble.dart';
 part 'info_profile.dart';
+part 'user_card.dart';

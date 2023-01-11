@@ -78,7 +78,7 @@ class _SignInPageState extends State<SignInPage> {
                   if (state is FirebaseAuthLoadingState) {
                     return const LoadingButton();
                   }
-                  return SignInSignUpButton(
+                  return MainButton(
                     title: 'Done',
                     onPressed: () {
                       SignInData data = SignInData(

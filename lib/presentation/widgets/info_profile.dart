@@ -1,353 +1,203 @@
 part of 'widgets.dart';
 
 class InfoProfile extends StatelessWidget {
+  final UserEntity user;
+  final List<PostEntity> posts;
   final bool isUser;
-  const InfoProfile({required this.isUser, super.key});
+  const InfoProfile(
+      {required this.user,
+      required this.posts,
+      required this.isUser,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
-    return isUser
-        ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const SizedBox(
+    Expanded buildStatColumn(int num, String label) {
+      return Expanded(
+        child: Column(
+          children: [
+            Text(
+              num.toString(),
+              style: blackTextFont.copyWith(
+                fontSize: 14,
+                fontWeight: semiBold,
+              ),
+            ),
+            Text(
+              label,
+              style: blackTextFont.copyWith(
+                fontSize: 14,
+                fontWeight: bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    Image line() {
+      return Image.asset(
+        'assets/line.png',
+        height: 46,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                isUser
+                    ? BlocBuilder<UserBloc, UserState>(
+                        builder: (context, userState) {
+                          if (userState is UserLoaded) {
+                            if (photoProfileToUpload != null) {
+                              uploadProfileImage(photoProfileToUpload!)
+                                  .then((downloadUrl) {
+                                photoProfileToUpload = null;
+                                context.read<UserBloc>().add(
+                                    UpdateUser(profilePicture: downloadUrl));
+                              });
+                            }
+                            return SizedBox(
+                              width: 67,
+                              height: 67,
+                              child: (userState.user.profilePicture == '')
+                                  ? const CircleAvatar(
+                                      backgroundImage:
+                                          AssetImage('assets/user_pic.png'),
+                                    )
+                                  : CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                          userState.user.profilePicture!),
+                                    ),
+                            );
+                          } else {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                        },
+                      )
+                    : SizedBox(
                         width: 67,
                         height: 67,
-                        child: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                              'https://images.unsplash.com/photo-1536588086516-cf8b058a7aa0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80'),
-                        ),
+                        child: (user.profilePicture == '')
+                            ? const CircleAvatar(
+                                backgroundImage:
+                                    AssetImage('assets/user_pic.png'),
+                              )
+                            : CircleAvatar(
+                                backgroundImage:
+                                    NetworkImage(user.profilePicture!),
+                              ),
                       ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'El kamcy speaks',
-                            style: blackTextFont.copyWith(
-                              fontSize: 18,
-                              fontWeight: semiBold,
-                            ),
-                          ),
-                          Text(
-                            'Bauchi, Bauchi',
-                            style: blackTextFont.copyWith(
-                              fontSize: 12,
-                              fontWeight: semiBold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Image.asset(
-                    'assets/setting_icon.png',
-                    width: 20,
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.7,
-                child: Text(
-                  'Tech Brossss. | I love to travelling | Food | Creator',
-                  style: blackTextFont.copyWith(
-                    fontSize: 12,
-                    fontWeight: medium,
-                  ),
+                const SizedBox(
+                  width: 15,
                 ),
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                width: double.infinity,
-                height: 42,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      backgroundColor: mainColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      )),
-                  onPressed: () {},
-                  child: Text(
-                    'Edit Profile',
-                    style: whiteTextFont.copyWith(
-                      fontSize: 12,
-                      fontWeight: semiBold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 14,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Text(
-                          '98',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: semiBold,
-                          ),
-                        ),
-                        Text(
-                          'Post',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Image.asset(
-                    'assets/line.png',
-                    height: 46,
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Text(
-                          '900',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: semiBold,
-                          ),
-                        ),
-                        Text(
-                          'Following',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Image.asset(
-                    'assets/line.png',
-                    height: 46,
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Text(
-                          '99k',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: semiBold,
-                          ),
-                        ),
-                        Text(
-                          'Followers',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          )
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const SizedBox(
-                        width: 67,
-                        height: 67,
-                        child: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                              'https://images.unsplash.com/photo-1536588086516-cf8b058a7aa0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80'),
-                        ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user.name!,
+                      style: blackTextFont.copyWith(
+                        fontSize: 18,
+                        fontWeight: semiBold,
                       ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'El kamcy speaks',
-                            style: blackTextFont.copyWith(
-                              fontSize: 18,
-                              fontWeight: semiBold,
-                            ),
-                          ),
-                          Text(
-                            'Bauchi, Bauchi',
-                            style: blackTextFont.copyWith(
-                              fontSize: 12,
-                              fontWeight: semiBold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const Icon(
-                    Icons.more_vert,
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.4,
-                    child: Text(
-                      'Tech Brossss. | I love to travelling | Food | Creator',
+                    ),
+                    Text(
+                      'Bauchi, Bauchi',
                       style: blackTextFont.copyWith(
                         fontSize: 12,
-                        fontWeight: medium,
+                        fontWeight: semiBold,
                       ),
                     ),
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        width: 45,
-                        height: 31,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(15.5),
-                        ),
-                        child: Image.asset(
-                          'assets/chat_icon.png',
-                          width: 16,
-                          fit: BoxFit.contain,
-                        ),
+                  ],
+                ),
+              ],
+            ),
+            GestureDetector(
+              onTap: () {
+                // change user to offline
+                context.read<UserBloc>().add(
+                      UpdateUser(
+                        isOnline: false,
+                        lastSeen: DateTime.now(),
                       ),
-                      const SizedBox(
-                        width: 6,
-                      ),
-                      Container(
-                        width: 90,
-                        height: 31,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.5),
-                          color: mainColor,
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Follow',
-                            style: whiteTextFont.copyWith(
-                              fontSize: 12,
-                              fontWeight: medium,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                    );
+                //sign out firebase
+                context
+                    .read<FirebaseAuthBloc>()
+                    .add(FirebaseAuthSignOutEvent());
+                //change postpagebloc to initial
+                context.read<PostPageBloc>().add(GoToPostPageInitial());
+                //change profilepagebloc to initial
+                context.read<ProfilePageBloc>().add(GoToProfilePageInitial());
+                //change searchbloc to initial
+                context.read<SearchBloc>().add(SearchEventInitial());
+              },
+              child: Image.asset(
+                'assets/setting_icon.png',
+                width: 20,
               ),
-              const SizedBox(
-                height: 14,
+            )
+          ],
+        ),
+        const SizedBox(
+          height: 12,
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7,
+          child: Text(
+            user.about!,
+            style: blackTextFont.copyWith(
+              fontSize: 12,
+              fontWeight: medium,
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 12,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          width: double.infinity,
+          height: 42,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: mainColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                )),
+            onPressed: () {},
+            child: Text(
+              'Edit Profile',
+              style: whiteTextFont.copyWith(
+                fontSize: 12,
+                fontWeight: semiBold,
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Text(
-                          '98',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: semiBold,
-                          ),
-                        ),
-                        Text(
-                          'Post',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Image.asset(
-                    'assets/line.png',
-                    height: 46,
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Text(
-                          '900',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: semiBold,
-                          ),
-                        ),
-                        Text(
-                          'Following',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Image.asset(
-                    'assets/line.png',
-                    height: 46,
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Text(
-                          '99k',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: semiBold,
-                          ),
-                        ),
-                        Text(
-                          'Followers',
-                          style: blackTextFont.copyWith(
-                            fontSize: 14,
-                            fontWeight: bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          );
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 14,
+        ),
+        Row(
+          children: [
+            buildStatColumn(posts.length, 'Posts'),
+            line(),
+            buildStatColumn(user.following!.length, 'Following'),
+            line(),
+            buildStatColumn(user.follower!.length, 'Followers'),
+          ],
+        ),
+      ],
+    );
   }
 }

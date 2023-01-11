@@ -12,19 +12,49 @@ class UserEntity extends Equatable {
   String? profilePicture;
   List<String>? following;
   List<String>? follower;
+  bool? isOnline;
+  DateTime? lastSeen;
 
-  UserEntity(
+  UserEntity({
     this.id,
-    this.email, {
-    required this.name,
-    required this.username,
-    required this.dateOfBirth,
-    required this.gender,
-    required this.about,
-    required this.profilePicture,
-    required this.following,
-    required this.follower,
+    this.email,
+    this.name,
+    this.username,
+    this.dateOfBirth,
+    this.gender,
+    this.about,
+    this.profilePicture,
+    this.following,
+    this.follower,
+    this.isOnline,
+    this.lastSeen,
   });
+
+  UserEntity copyWith({
+    String? name,
+    String? profilePicture,
+    String? about,
+    DateTime? dateOfBirth,
+    String? username,
+    List<String>? following,
+    List<String>? follower,
+    bool? isOnline,
+    DateTime? lastSeen,
+  }) =>
+      UserEntity(
+        id: id ?? this.name,
+        email: email ?? email,
+        name: name ?? this.name,
+        username: username ?? this.username,
+        dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+        gender: gender,
+        about: about ?? this.about,
+        profilePicture: profilePicture ?? this.profilePicture,
+        following: following ?? this.following,
+        follower: follower ?? this.follower,
+        isOnline: isOnline ?? this.isOnline,
+        lastSeen: lastSeen ?? this.lastSeen,
+      );
 
   @override
   List<Object?> get props => [
@@ -38,6 +68,8 @@ class UserEntity extends Equatable {
         profilePicture,
         following,
         follower,
+        isOnline,
+        lastSeen,
       ];
 
   UserModel toModel() {
@@ -52,6 +84,8 @@ class UserEntity extends Equatable {
       profilePicture: profilePicture!,
       following: following!,
       follower: follower!,
+      isOnline: isOnline!,
+      lastSeen: lastSeen!,
     );
   }
 }

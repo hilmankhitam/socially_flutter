@@ -47,6 +47,10 @@ class GoToMainPage extends PageEvent {
 }
 
 class GoToDetailChatPage extends PageEvent {
+  final UserEntity user;
+
+  const GoToDetailChatPage(this.user);
+
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [user];
 }

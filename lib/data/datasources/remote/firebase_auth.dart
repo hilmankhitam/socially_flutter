@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class FirebaseAuthentication {
@@ -10,8 +9,6 @@ abstract class FirebaseAuthentication {
 
 class FirebaseAuthenticationImpl implements FirebaseAuthentication {
   static final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  static final CollectionReference _firebaseFirestore =
-      FirebaseFirestore.instance.collection('users');
 
   @override
   Future<User> signUp(String email, String password) async {
@@ -23,18 +20,9 @@ class FirebaseAuthenticationImpl implements FirebaseAuthentication {
   }
 
   @override
-  Future<User> signIn(String username, String password) async {
-    QuerySnapshot snapshot =
-        await _firebaseFirestore.where('username', isEqualTo: username).get();
-    String? email;
-    if (snapshot.docs.isEmpty) {
-      email = 's@o.c';
-    } else {
-      email = snapshot.docs.first['email'];
-    }
-
+  Future<User> signIn(String email, String password) async {
     UserCredential result = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email!, password: password);
+        email: email, password: password);
 
     final user = result.user!;
 

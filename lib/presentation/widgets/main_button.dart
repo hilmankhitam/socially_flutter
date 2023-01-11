@@ -1,10 +1,9 @@
 part of 'widgets.dart';
 
-class SignInSignUpButton extends StatelessWidget {
+class MainButton extends StatelessWidget {
   final String title;
   final Function onPressed;
-  const SignInSignUpButton(
-      {required this.title, required this.onPressed, super.key});
+  const MainButton({required this.title, required this.onPressed, super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -19,7 +19,7 @@ class FirebaseAuthSuccessState extends FirebaseAuthState {
 
   const FirebaseAuthSuccessState(this.user);
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [user];
 }
 
 class FirestoreUserSuccessState extends FirebaseAuthState {
@@ -27,7 +27,7 @@ class FirestoreUserSuccessState extends FirebaseAuthState {
 
   const FirestoreUserSuccessState(this.message);
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [message];
 }
 
 class FirebaseAuthFailureState extends FirebaseAuthState {

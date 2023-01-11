@@ -5,10 +5,10 @@ import 'package:socially/common/extensions/extensions.dart';
 import 'package:socially/domain/entities/registration_data.dart';
 import 'package:socially/domain/entities/sign_in_data.dart';
 import 'package:socially/domain/entities/user_entity.dart';
-import 'package:socially/domain/usecase/add_new_user_user_case.dart';
-import 'package:socially/domain/usecase/sign_in_auth_user_case.dart';
-import 'package:socially/domain/usecase/sign_out_auth_use_case.dart';
-import 'package:socially/domain/usecase/sign_up_auth_use_case.dart';
+import 'package:socially/domain/usecase/firestore_user/add_new_user_use_case.dart';
+import 'package:socially/domain/usecase/auth/sign_in_auth_user_case.dart';
+import 'package:socially/domain/usecase/auth/sign_out_auth_use_case.dart';
+import 'package:socially/domain/usecase/auth/sign_up_auth_use_case.dart';
 
 part 'firebase_auth_event.dart';
 part 'firebase_auth_state.dart';
@@ -40,6 +40,8 @@ class FirebaseAuthBloc extends Bloc<FirebaseAuthEvent, FirebaseAuthState> {
             gender: event.newUser.gender,
             about: event.newUser.about,
             profilePicture: '',
+            isOnline: true,
+            lastSeen: DateTime.now(),
           );
           final resultNewUser = await addNewUserUseCase.execute(user);
           await resultNewUser.fold((failure) async {

@@ -1,7 +1,8 @@
 part of 'post.dart';
 
 class PostPage extends StatefulWidget {
-  const PostPage({super.key});
+  final List<String> following;
+  const PostPage({required this.following, super.key});
 
   @override
   State<PostPage> createState() => _PostPageState();
@@ -9,8 +10,9 @@ class PostPage extends StatefulWidget {
 
 class _PostPageState extends State<PostPage> {
   @override
-  void dispose() {
-    super.dispose();
+  void initState() {
+    super.initState();
+    // context.read<PostBloc>().add(GetAllPostsBasedOnFollowing(widget.following));
   }
 
   Widget searchView() {
@@ -20,7 +22,11 @@ class _PostPageState extends State<PostPage> {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => context.read<PostPageBloc>().add(GoToSearchPage()),
+              onTap: () {
+                List<PostPageEvent> pop = [];
+                pop.add(GoToPostPage(widget.following));
+                context.read<PostPageBloc>().add(GoToSearchPage(pop));
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 19,
@@ -71,10 +77,6 @@ class _PostPageState extends State<PostPage> {
 
   List<String> listStories = [
     'Hai',
-    'Nama',
-    'Saya',
-    'Hilman',
-    'Khitam',
   ];
 
   Widget listStoryCard() {
@@ -85,8 +87,9 @@ class _PostPageState extends State<PostPage> {
         child: Row(
           children: [
             Container(
-                margin: EdgeInsets.only(left: defaultMarginApps),
-                child: const StoryCard()),
+              margin: EdgeInsets.only(left: defaultMarginApps),
+              child: const StoryCard(),
+            ),
             ListView.builder(
               scrollDirection: Axis.horizontal,
               shrinkWrap: true,
@@ -112,26 +115,58 @@ class _PostPageState extends State<PostPage> {
   }
 
   Widget listPostCard() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: defaultMarginApps, vertical: 11),
-      child: ListView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: listStories.length,
-        itemBuilder: (context, index) {
-          return Container(
-            margin: EdgeInsets.only(
-              top: (index == 0) ? 11 : 14,
-              bottom: (index == listStories.length - 1) ? 70 : 0,
-            ),
-            child: PostCard(
-              onTap: () {
-                context.read<PostPageBloc>().add(GoToCommentPage());
-              },
-            ),
-          );
-        },
-      ),
+    return BlocBuilder<UserBloc, UserState>(
+      builder: (context, userState) {
+        return BlocBuilder<PostBloc, PostState>(
+          builder: (context, postState) {
+            if (postState is GetPostsBasedFollowingSuccessState) {
+              List<PostEntity> posts = postState.posts;
+              List<UserEntity> users = postState.users;
+              List<List<CommentEntity>> comments = postState.comments;
+              List<List<UserEntity>> likes = postState.likes;
+              return Container(
+                margin: EdgeInsets.symmetric(
+                    horizontal: defaultMarginApps, vertical: 11),
+                child: ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) {
+                    UserEntity user = users[index];
+                    PostEntity post = posts[index];
+                    List<CommentEntity> listComments = comments[index];
+                    List<UserEntity> listLikes = likes[index];
+
+                    return Container(
+                      margin: EdgeInsets.only(
+                        top: (index == 0) ? 11 : 14,
+                        bottom: (index == posts.length - 1) ? 70 : 0,
+                      ),
+                      child: PostCard(
+                        myPersonalId: (userState as UserLoaded).user.id!,
+                        post: post,
+                        user: user,
+                        likes: listLikes,
+                        comments: listComments,
+                        onTap: () {
+                          List<PostPageEvent> pop = [];
+                          pop.add(GoToPostPage(widget.following));
+                          context.read<PostPageBloc>().add(GoToCommentPostPage(
+                                post.idPost!,
+                                pop,
+                              ));
+                        },
+                      ),
+                    );
+                  },
+                ),
+              );
+            } else {
+              return const SizedBox();
+            }
+          },
+        );
+      },
     );
   }
 

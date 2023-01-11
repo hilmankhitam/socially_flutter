@@ -1,81 +1,116 @@
 part of 'widgets.dart';
 
-class ChatTile extends StatelessWidget {
+class ChatTile extends StatefulWidget {
+  final UserEntity user;
   final Function onTap;
-  const ChatTile({required this.onTap, super.key});
+  const ChatTile({required this.user, required this.onTap, super.key});
+
+  @override
+  State<ChatTile> createState() => _ChatTileState();
+}
+
+class _ChatTileState extends State<ChatTile> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onTap(),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              const SizedBox(
-                height: 40,
-                width: 40,
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(
-                      'https://images.unsplash.com/photo-1541499768294-44cad3c95755?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1473&q=80'),
-                ),
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Amina Mark',
-                    style: blackTextFont.copyWith(
-                      fontSize: 12,
-                      fontWeight: bold,
-                    ),
-                  ),
-                  Text(
-                    'ekamcy@gmail.com',
-                    style: mainTextFont.copyWith(
-                      fontSize: 10,
-                      fontWeight: reguler,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Column(
-            children: [
-              Text(
-                '08:43',
-                style: blackTextFont.copyWith(
-                  color: const Color(0xFFB3B9C9),
-                  fontSize: 10,
-                  fontWeight: reguler,
-                ),
-              ),
-              Container(
-                width: 17,
-                height: 17,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: mainColor,
-                ),
-                child: Center(
-                  child: Text(
-                    '1',
-                    style: whiteTextFont.copyWith(
-                      fontSize: 8,
-                      fontWeight: medium,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return BlocBuilder<UserBloc, UserState>(
+      builder: (context, userState) {
+        UserEntity myPersonalInfo = (userState as UserLoaded).user;
+        return GestureDetector(
+          onTap: () => widget.onTap(),
+          child: StreamBuilder<List<MessageEntity>>(
+              stream: di
+                  .locator<GetMessagesByIdUseCase>()
+                  .execute(myPersonalInfo.id!, widget.user.id!),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List<MessageEntity> messages = snapshot.data!;
+                  messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          SizedBox(
+                            height: 40,
+                            width: 40,
+                            child: widget.user.profilePicture == ''
+                                ? const CircleAvatar(
+                                    backgroundImage:
+                                        AssetImage('assets/user_pic.png'),
+                                  )
+                                : CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        widget.user.profilePicture!),
+                                  ),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.user.name!,
+                                style: blackTextFont.copyWith(
+                                  fontSize: 12,
+                                  fontWeight: bold,
+                                ),
+                              ),
+                              Text(
+                                messages.last.message,
+                                style: mainTextFont.copyWith(
+                                  fontSize: 10,
+                                  fontWeight: reguler,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            messages.last.createdAt.readTimeStampChat(
+                                messages.last.createdAt.millisecondsSinceEpoch),
+                            style: blackTextFont.copyWith(
+                              color: const Color(0xFFB3B9C9),
+                              fontSize: 10,
+                              fontWeight: reguler,
+                            ),
+                          ),
+                          Container(
+                            width: 17,
+                            height: 17,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: mainColor,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '1',
+                                style: whiteTextFont.copyWith(
+                                  fontSize: 8,
+                                  fontWeight: medium,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                } else {
+                  return const SizedBox();
+                }
+              }),
+        );
+      },
     );
   }
 }

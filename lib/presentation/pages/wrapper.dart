@@ -14,8 +14,9 @@ class Wrapper extends StatelessWidget {
       }
     } else {
       if (prevPageEvent is! GoToMainPage) {
-        prevPageEvent = const GoToMainPage(0);
+        context.read<UserBloc>().add(LoadUser(firebaseUser.uid));
 
+        prevPageEvent = const GoToMainPage(0);
         context.read<PageBloc>().add(prevPageEvent!);
       }
     }
@@ -33,7 +34,7 @@ class Wrapper extends StatelessWidget {
                               bottomNavBarIndex: pageState.bottomNavBarIndex,
                             )
                           : (pageState is OnDetailChatPage)
-                              ? const DetailChatPage()
+                              ? DetailChatPage(user: pageState.user)
                               : Container(),
     );
   }

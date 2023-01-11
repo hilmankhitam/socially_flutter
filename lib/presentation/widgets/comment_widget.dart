@@ -1,10 +1,14 @@
 part of 'widgets.dart';
 
 class CommentWidget extends StatelessWidget {
-  const CommentWidget({super.key});
+  final CommentEntity comment;
+  final UserEntity user;
+  const CommentWidget({required this.comment, required this.user, super.key});
 
   @override
   Widget build(BuildContext context) {
+    var time = comment.createdAt!.millisecondsSinceEpoch;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -14,35 +18,38 @@ class CommentWidget extends StatelessWidget {
           children: [
             Column(
               children: [
-                const SizedBox(
+                SizedBox(
                   height: 40,
                   width: 40,
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(
-                        'https://images.unsplash.com/photo-1541499768294-44cad3c95755?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1473&q=80'),
-                  ),
+                  child: (user.profilePicture == '')
+                      ? const CircleAvatar(
+                          backgroundImage: AssetImage('assets/user_pic.png'),
+                        )
+                      : CircleAvatar(
+                          backgroundImage: NetworkImage(user.profilePicture!),
+                        ),
                 ),
                 const SizedBox(
                   height: 5,
                 ),
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/love_red_icon.png',
-                      width: 10,
-                    ),
-                    const SizedBox(
-                      width: 3,
-                    ),
-                    Text(
-                      '25',
-                      style: blackTextFont.copyWith(
-                        fontSize: 11,
-                        fontWeight: medium,
-                      ),
-                    ),
-                  ],
-                ),
+                // Row(
+                //   children: [
+                //     Image.asset(
+                //       'assets/love_red_icon.png',
+                //       width: 10,
+                //     ),
+                //     const SizedBox(
+                //       width: 3,
+                //     ),
+                //     Text(
+                //       '25',
+                //       style: blackTextFont.copyWith(
+                //         fontSize: 11,
+                //         fontWeight: medium,
+                //       ),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
             const SizedBox(
@@ -52,7 +59,7 @@ class CommentWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Kamcy el',
+                  user.name!,
                   style: blackTextFont.copyWith(
                     fontSize: 13,
                     fontWeight: semiBold,
@@ -63,9 +70,9 @@ class CommentWidget extends StatelessWidget {
                       (defaultMarginApps * 2) -
                       95,
                   child: Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pharetra aliquam, congue habitasse tortor. Fringilla nunc aliquam volutpat suscipit porttitor in quis sagittis hac. Tellus sed ac libero',
+                    comment.comment!,
                     style: blackTextFont.copyWith(
-                      fontSize: 8,
+                      fontSize: 10,
                       fontWeight: bold,
                     ),
                     maxLines: 8,
@@ -75,11 +82,13 @@ class CommentWidget extends StatelessWidget {
             ),
           ],
         ),
-        Text(
-          '2hrs Ago',
-          style: blackTextFont.copyWith(
-            fontSize: 10,
-            fontWeight: medium,
+        Flexible(
+          child: Text(
+            comment.createdAt!.readTimeStamp(time),
+            style: blackTextFont.copyWith(
+              fontSize: 10,
+              fontWeight: medium,
+            ),
           ),
         ),
       ],

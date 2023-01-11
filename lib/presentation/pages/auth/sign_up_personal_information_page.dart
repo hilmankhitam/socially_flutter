@@ -226,7 +226,7 @@ class _SignUpPersonalPageState extends State<SignUpPersonalPage> {
                   ),
                   birthAndGender(),
                   about(),
-                  SignInSignUpButton(
+                  MainButton(
                     title: 'Next',
                     onPressed: () {
                       if (!(nameController.text.trim() != '' &&

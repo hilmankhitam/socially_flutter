@@ -1,70 +1,116 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:socially/common/styles.dart';
+import 'package:socially/domain/entities/post_entity.dart';
+import 'package:socially/domain/entities/user_entity.dart';
+import 'package:socially/presentation/bloc/page/post_page/post_page_bloc.dart';
+import 'package:socially/presentation/bloc/page/profile_page/profile_page_bloc.dart';
+import 'package:socially/presentation/bloc/user/user_bloc.dart';
 import 'package:socially/presentation/widgets/widgets.dart';
 
-class ProfilePage extends StatelessWidget {
-  final bool isUser;
-  const ProfilePage({this.isUser = false, super.key});
+class ProfilePage extends StatefulWidget {
+  final List<PostPageEvent> pop;
+  const ProfilePage({required this.pop, super.key});
 
   @override
-  Widget build(BuildContext context) {
-    Widget infoProfile() {
-      return Container(
-        margin: EdgeInsets.only(
-            top: 36,
-            bottom: 17,
-            left: defaultMarginApps,
-            right: defaultMarginApps),
-        child: InfoProfile(
-          isUser: isUser,
-        ),
-      );
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  Future<void> onRefresh(String uid) async {
+    if (mounted) {
+      context.read<UserBloc>().add(LoadUser(uid));
     }
+  }
 
-    List<String> listStories = [
-      'Hai',
-      'Nama',
-      'Saya',
-      'Hilman',
-      'Khitam',
-      'Khitam',
-      'Khitam',
-      'Khitam',
-      'Khitam',
-      'Khitam',
-      'Khitam',
-    ];
+  Widget header() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: defaultMarginApps),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          widget.pop.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    context.read<PostPageBloc>().add(widget.pop.last);
+                    widget.pop.remove(widget.pop.last);
+                  },
+                  child: Container(
+                    width: 10,
+                    height: 18.24,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/arrow_back.png'),
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox(),
+          Text(
+            'My Profile',
+            style: blackTextFont.copyWith(
+              fontSize: 18,
+              fontWeight: semiBold,
+            ),
+          ),
+          const SizedBox(),
+        ],
+      ),
+    );
+  }
 
-    Widget listPost() {
-      return Container(
-        margin: EdgeInsets.symmetric(horizontal: defaultMarginApps),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Posts',
-              style: blackTextFont.copyWith(
-                fontSize: 14,
-                fontWeight: bold,
-              ),
+  Widget infoProfileUser(UserEntity user, List<PostEntity> posts) {
+    return Container(
+      margin: EdgeInsets.only(
+          top: 36,
+          bottom: 17,
+          left: defaultMarginApps,
+          right: defaultMarginApps),
+      child: InfoProfile(
+        posts: posts,
+        user: user,
+        isUser: true,
+      ),
+    );
+  }
+
+  Widget listPosts(UserEntity user, List<PostEntity> posts) {
+    posts.sort((a, b) => b.datePublished.compareTo(a.datePublished));
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: defaultMarginApps),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Posts',
+            style: blackTextFont.copyWith(
+              fontSize: 14,
+              fontWeight: bold,
             ),
-            const SizedBox(
-              height: 7,
+          ),
+          const SizedBox(
+            height: 7,
+          ),
+          GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
             ),
-            GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-              ),
-              itemCount: listStories.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  // width: MediaQuery.of(context).size.width -
-                  //     (defaultMarginApps * 2) -
-                  //     (10 * 2) / 3,
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final PostEntity post = posts[index];
+              return GestureDetector(
+                onTap: () {
+                  List<ProfilePageEvent> pop = [];
+                  pop.add(GoToProfileProfilePage());
+                  context
+                      .read<ProfilePageBloc>()
+                      .add(GoToCommentProfilePage(post.idPost!, pop));
+                },
+                child: Container(
                   height: MediaQuery.of(context).size.width -
                       (defaultMarginApps * 2) -
                       (10 * 2) / 3,
@@ -72,107 +118,38 @@ class ProfilePage extends StatelessWidget {
                       const BoxConstraints(maxHeight: 99, maxWidth: 99),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    image: const DecorationImage(
-                      image: NetworkImage(
-                          'https://images.unsplash.com/photo-1536588086516-cf8b058a7aa0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80'),
+                    image: DecorationImage(
+                      image: NetworkImage(post.postImage),
                       fit: BoxFit.cover,
                     ),
                   ),
-                );
-              },
-            ),
-          ],
-        ),
-      );
-    }
-
-    Widget listFollower() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Divider(
-            thickness: 1.5,
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: defaultMarginApps),
-            child: Text(
-              'Followers',
-              style: blackTextFont.copyWith(
-                fontSize: 14,
-                fontWeight: bold,
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 7,
-          ),
-          SizedBox(
-            height: 75,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
-                itemCount: listStories.length,
-                itemBuilder: ((context, index) {
-                  return Container(
-                    margin: EdgeInsets.only(
-                      left: (index == 0) ? defaultMarginApps : 0,
-                      right: (index == listStories.length - 1)
-                          ? defaultMarginApps
-                          : 26,
-                    ),
-                    child: Column(
-                      children: [
-                        const SizedBox(
-                          width: 54,
-                          height: 54,
-                          child: CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                'https://images.unsplash.com/photo-1536588086516-cf8b058a7aa0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80'),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 6,
-                        ),
-                        Text(
-                          'Ayunda',
-                          style: blackTextFont.copyWith(
-                            fontSize: 10,
-                            fontWeight: semiBold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 12,
-          ),
-          const Divider(
-            thickness: 1.5,
+                ),
+              );
+            },
           ),
         ],
-      );
-    }
+      ),
+    );
+  }
 
-    return ListView(
-      padding: const EdgeInsets.only(top: 28, bottom: 70),
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: defaultMarginApps),
-          child: HeaderPageWidget(
-            title: isUser ? 'My Profile' : 'Profile',
-            pop: () {},
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+      builder: (context, userState) {
+        UserEntity user = (userState as UserLoaded).user;
+        List<PostEntity> posts = userState.posts;
+        return RefreshIndicator(
+          onRefresh: () => onRefresh(user.id!),
+          child: ListView(
+            padding: const EdgeInsets.only(top: 28, bottom: 70),
+            children: [
+              header(),
+              infoProfileUser(user, posts),
+              listPosts(user, posts),
+            ],
           ),
-        ),
-        infoProfile(),
-        isUser ? const SizedBox() : listFollower(),
-        listPost(),
-      ],
+        );
+      },
     );
   }
 }

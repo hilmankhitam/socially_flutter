@@ -52,6 +52,9 @@ class OnMainPage extends PageState {
 }
 
 class OnDetailChatPage extends PageState {
+  final UserEntity user;
+
+  const OnDetailChatPage(this.user);
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [user];
 }

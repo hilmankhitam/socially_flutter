@@ -8,19 +8,43 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   int bottomNavBarIndex = 0;
   PageController pageController = PageController();
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     pageController.dispose();
     super.dispose();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      //online
+      context.read<UserBloc>().add(
+            const UpdateUser(
+              isOnline: true,
+            ),
+          );
+      debugPrint(state.toString());
+    } else {
+      //offline
+      context.read<UserBloc>().add(
+            UpdateUser(
+              isOnline: false,
+              lastSeen: DateTime.now(),
+            ),
+          );
+      debugPrint(state.toString());
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     bottomNavBarIndex = widget.bottomNavBarIndex;
     pageController = PageController(initialPage: bottomNavBarIndex);
   }
@@ -102,31 +126,92 @@ class _MainPageState extends State<MainPage> {
       body: SafeArea(
         child: Stack(
           children: [
-            PageView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  bottomNavBarIndex = index;
-                });
+            BlocConsumer<UserBloc, UserState>(
+              listener: (context, userState) {
+                if (userState is UserLoaded) {
+                  context.read<PostBloc>().add(GetAllPostsBasedOnFollowing(
+                      userState.user.following!, userState.user.id!));
+                }
               },
-              children: [
-                BlocBuilder<PostPageBloc, PostPageState>(
-                  builder: (context, pageState) {
-                    return (pageState is OnNotificationPage)
-                        ? const NotificationPage()
-                        : (pageState is OnCommentPage)
-                            ? const CommentPage()
-                            : (pageState is OnSearchPage)
-                                ? const SearchPage()
-                                : const PostPage();
-                  },
-                ),
-                const SocialPage(),
-                const UploadPage(),
-                const ChatPage(),
-                const ProfilePage(),
-              ],
+              builder: (context, userState) {
+                if (userState is UserLoaded) {
+                  return PageView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    controller: pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        bottomNavBarIndex = index;
+                      });
+                    },
+                    children: [
+                      BlocBuilder<PostPageBloc, PostPageState>(
+                        builder: (context, pageState) {
+                          return (pageState is OnNotificationPage)
+                              ? const NotificationPage()
+                              : (pageState is OnCommentPostPage)
+                                  ? CommentPage(
+                                      idPost: pageState.idPost,
+                                      postPagePop: pageState.pop,
+                                      profilePagePop: const [],
+                                    )
+                                  : (pageState is OnSearchPage)
+                                      ? SearchPage(
+                                          pop: pageState.pop,
+                                        )
+                                      : (pageState is OnDetailProfilePage)
+                                          ? DetailProfilePage(
+                                              pop: pageState.pop,
+                                              uid: pageState.uid,
+                                            )
+                                          : (pageState is OnProfilePostPage)
+                                              ? ProfilePage(pop: pageState.pop)
+                                              : PostPage(
+                                                  following:
+                                                      userState.user.following!,
+                                                );
+                        },
+                      ),
+                      const SocialPage(),
+                      UploadPage(
+                        idUser: userState.user.id!,
+                      ),
+                      const ChatPage(),
+                      BlocBuilder<ProfilePageBloc, ProfilePageState>(
+                        builder: (context, pageState) {
+                          return (pageState is OnProfileProfilePage)
+                              ? const ProfilePage(
+                                  pop: [],
+                                )
+                              : (pageState is OnCommentProfilePage)
+                                  ? CommentPage(
+                                      idPost: pageState.idPost,
+                                      profilePagePop: pageState.pop,
+                                      postPagePop: const [],
+                                    )
+                                  : const ProfilePage(pop: []);
+                        },
+                      ),
+                    ],
+                  );
+                } else {
+                  return PageView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    controller: pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        bottomNavBarIndex = index;
+                      });
+                    },
+                    children: const [
+                      CircularProgressIndicator(),
+                      CircularProgressIndicator(),
+                      CircularProgressIndicator(),
+                      CircularProgressIndicator(),
+                      CircularProgressIndicator(),
+                    ],
+                  );
+                }
+              },
             ),
             customBottomNavBar(),
           ],
