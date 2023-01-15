@@ -8,4 +8,6 @@ abstract class FirestoreChatRepository {
   Stream<List<MessageEntity>> getMessagesById(
       String myPersonalId, String reciverId);
   Stream<List<String>> getUserInfoChat(String myPersonalId);
+  Future<Either<Failure, String>> updateRead(
+      List<MessageEntity> messages, String receiverId, String myPersonalId);
 }

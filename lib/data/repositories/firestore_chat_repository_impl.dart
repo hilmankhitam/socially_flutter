@@ -47,4 +47,21 @@ class FirestoreChatRepositoryImpl implements FirestoreChatRepository {
       throw Exception(error);
     }
   }
+
+  @override
+  Future<Either<Failure, String>> updateRead(List<MessageEntity> messages,
+      String receiverId, String myPersonalId) async {
+    try {
+      final result = await firestoreChat.updateRead(
+        messages.map((entity) => entity.toModel()).toList(),
+        receiverId,
+        myPersonalId,
+      );
+      return Right(result);
+    } on ServerException {
+      return const Left(ServerFailure(''));
+    } on SocketException {
+      return const Left(ConnectionFailure('Failure to connect to the network'));
+    }
+  }
 }

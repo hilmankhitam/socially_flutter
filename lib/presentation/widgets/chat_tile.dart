@@ -30,7 +30,10 @@ class _ChatTileState extends State<ChatTile> {
                 if (snapshot.hasData) {
                   List<MessageEntity> messages = snapshot.data!;
                   messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
+                  var unreadMessages = messages
+                      .where((message) =>
+                          !message.read.contains(myPersonalInfo.id))
+                      .length;
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -84,23 +87,25 @@ class _ChatTileState extends State<ChatTile> {
                               fontWeight: reguler,
                             ),
                           ),
-                          Container(
-                            width: 17,
-                            height: 17,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: mainColor,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '1',
-                                style: whiteTextFont.copyWith(
-                                  fontSize: 8,
-                                  fontWeight: medium,
+                          unreadMessages == 0
+                              ? const SizedBox()
+                              : Container(
+                                  width: 17,
+                                  height: 17,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: mainColor,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '$unreadMessages',
+                                      style: whiteTextFont.copyWith(
+                                        fontSize: 8,
+                                        fontWeight: medium,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ],

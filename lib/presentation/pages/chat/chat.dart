@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:socially/common/extensions/extensions.dart';
 import 'package:socially/common/styles.dart';
+import 'package:socially/domain/entities/message_data.dart';
 import 'package:socially/domain/entities/message_entity.dart';
 import 'package:socially/domain/entities/user_entity.dart';
 import 'package:socially/domain/usecase/firestore_chat/get_messages_by_id_use_case.dart';

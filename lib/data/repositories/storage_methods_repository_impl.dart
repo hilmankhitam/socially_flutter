@@ -22,4 +22,16 @@ class StorageMethodsRepositoryImpl implements StorageMethodsRepository {
       return const Left(ConnectionFailure('Failure to connect to the network'));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> uploadChatImage(File image) async {
+    try {
+      final result = await storageMethods.uploadChatImage(image);
+      return Right(result);
+    } on ServerException {
+      return const Left(ServerFailure(''));
+    } on SocketException {
+      return const Left(ConnectionFailure('Failure to connect to the network'));
+    }
+  }
 }

@@ -26,14 +26,13 @@ class _DetailChatPageState extends State<DetailChatPage>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {}
-  }
+  void didChangeAppLifecycleState(AppLifecycleState state) {}
 
   PreferredSize header() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(88),
       child: AppBar(
+        toolbarHeight: 100,
         backgroundColor: whiteColor,
         elevation: 0.5,
         centerTitle: true,
@@ -210,17 +209,22 @@ class _DetailChatPageState extends State<DetailChatPage>
                     return GestureDetector(
                       onTap: () {
                         if (messageController.text.isNotEmpty) {
-                          MessageEntity message = MessageEntity(
+                          MessageData messageData = MessageData(
                             senderId: myPersonalInfo.id!,
                             createdAt: DateTime.now(),
                             message: messageController.text,
+                            chatImage: _imageFile != null
+                                ? File(_imageFile!.path)
+                                : null,
                           );
                           context.read<ChatBloc>().add(SendMessageEvent(
                                 widget.user.id!,
-                                message,
+                                messageData,
                               ));
+                          _imageFile = null;
                           messageController.clear();
                           FocusScope.of(context).unfocus();
+                          setState(() {});
                         }
                       },
                       child: Image.asset(
@@ -238,6 +242,8 @@ class _DetailChatPageState extends State<DetailChatPage>
     );
   }
 
+  final ScrollController scrollController = ScrollController();
+
   Widget body() {
     return BlocBuilder<UserBloc, UserState>(
       builder: (context, userState) {
@@ -249,15 +255,27 @@ class _DetailChatPageState extends State<DetailChatPage>
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 final List<MessageEntity> messages = snapshot.data!;
+                context.read<ChatBloc>().add(UpdateReadEvent(
+                    messages, myPersonalInfo.id!, widget.user.id!));
                 messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                  if (scrollController.hasClients) {
+                    scrollController.animateTo(
+                      scrollController.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                });
                 return ListView.builder(
+                  controller: scrollController,
                   padding: EdgeInsets.symmetric(
                       horizontal: defaultMarginApps, vertical: 10),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     MessageEntity message = messages[index];
                     return ChatBubble(
-                      text: message.message,
+                      message: message,
                       isSender: (message.senderId == myPersonalInfo.id),
                     );
                   },

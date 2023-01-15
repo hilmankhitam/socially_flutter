@@ -16,6 +16,7 @@ import 'package:socially/domain/repositories/storage_methods_repository.dart';
 import 'package:socially/domain/usecase/firestore_chat/add_message_use_case.dart';
 import 'package:socially/domain/usecase/firestore_chat/get_messages_by_id_use_case.dart';
 import 'package:socially/domain/usecase/firestore_chat/get_user_info_chat_use_case.dart';
+import 'package:socially/domain/usecase/firestore_chat/update_read_use_case.dart';
 import 'package:socially/domain/usecase/firestore_post/add_new_comment_use_case.dart';
 import 'package:socially/domain/usecase/firestore_post/add_new_post_use_case.dart';
 import 'package:socially/domain/usecase/firestore_post/get_all_comments_use_case.dart';
@@ -35,6 +36,7 @@ import 'package:socially/domain/usecase/firestore_user/get_user_use_case.dart';
 import 'package:socially/domain/usecase/firestore_user/search_user_use_case.dart';
 import 'package:socially/domain/usecase/firestore_user/unfollow_this_user_use_case.dart';
 import 'package:socially/domain/usecase/firestore_user/update_user_use_case.dart';
+import 'package:socially/domain/usecase/storage_methods/upload_chat_image_use_case.dart';
 import 'package:socially/domain/usecase/storage_methods/upload_post_image_use_case.dart';
 import 'package:socially/presentation/bloc/chat/chat_bloc.dart';
 import 'package:socially/presentation/bloc/chat/get_user_info_chat/get_user_info_chat_bloc.dart';
@@ -141,6 +143,8 @@ void init() {
   locator.registerFactory(
     () => ChatBloc(
       addMessageUseCase: locator(),
+      updateReadUseCase: locator(),
+      uploadChatImageUseCase: locator(),
     ),
   );
   locator.registerFactory(
@@ -174,8 +178,10 @@ void init() {
       () => GetAllPostsBasedOnFollowingUseCase(locator()));
 
   locator.registerLazySingleton(() => UploadPostImageUseCase(locator()));
+  locator.registerLazySingleton(() => UploadChatImageUseCase(locator()));
 
   locator.registerLazySingleton(() => AddMessageUseCase(locator()));
+  locator.registerLazySingleton(() => UpdateReadUseCase(locator()));
   locator.registerLazySingleton(() => GetMessagesByIdUseCase(locator()));
   locator.registerLazySingleton(() => GetUserInfoChatUseCase(locator()));
 

@@ -6,6 +6,8 @@ abstract class FirestoreChat {
   Stream<List<MessageModel>> getMessagesById(
       String myPersonalId, String receiverId);
   Stream<List<String>> getUserInfoChat(String myPersonalId);
+  Future<String> updateRead(
+      List<MessageModel> messages, String receiverId, String myPersonalId);
 }
 
 class FirestoreChatImpl implements FirestoreChat {
@@ -17,7 +19,7 @@ class FirestoreChatImpl implements FirestoreChat {
         .doc(message.senderId)
         .collection('chats')
         .doc(receiverId)
-        .set({'empty': receiverId});
+        .set({'idUser': receiverId});
     await _firebaseFirestore
         .doc(receiverId)
         .collection('chats')
@@ -34,9 +36,9 @@ class FirestoreChatImpl implements FirestoreChat {
         .collection('chats')
         .doc(message.senderId)
         .collection('messages')
-        .doc();
-    await chatSender.set(message.toJson());
-    await chatReciver.set(message.toJson());
+        .doc(chatSender.id);
+    await chatSender.set(message.toJson(chatId: chatSender.id));
+    await chatReciver.set(message.toJson(chatId: chatSender.id));
     return 'successfully sent a message';
   }
 
@@ -66,5 +68,31 @@ class FirestoreChatImpl implements FirestoreChat {
               String id = data.id;
               return id;
             }).toList());
+  }
+
+  @override
+  Future<String> updateRead(List<MessageModel> messages, String receiverId,
+      String myPersonalId) async {
+    for (int index = 0; index < messages.length; index++) {
+      await _firebaseFirestore
+          .doc(myPersonalId)
+          .collection('chats')
+          .doc(receiverId)
+          .collection('messages')
+          .doc(messages[index].chatId)
+          .update({
+        'read': FieldValue.arrayUnion([myPersonalId]),
+      });
+      await _firebaseFirestore
+          .doc(receiverId)
+          .collection('chats')
+          .doc(myPersonalId)
+          .collection('messages')
+          .doc(messages[index].chatId)
+          .update({
+        'read': FieldValue.arrayUnion([myPersonalId]),
+      });
+    }
+    return 'Successfully update isRead';
   }
 }
